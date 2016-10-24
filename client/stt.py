@@ -126,7 +126,7 @@ class PocketSphinxSTT(AbstractSTTEngine):
         config.set_string('-hmm', hmm_dir)
         config.set_string('-logfn', self._logfile)
         
-        for key, value in d.iteritems():
+        for key, value in **vocabulary.decoder_kwargs.iteritems():
             self._logger.debug("key=%s, value=%s", key, value)
         
         self._decoder = ps.Decoder(config)
