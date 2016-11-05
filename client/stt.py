@@ -71,7 +71,7 @@ class PocketSphinxSTT(AbstractSTTEngine):
     VOCABULARY_TYPE = vocabcompiler.PocketsphinxVocabulary
 
     def __init__(self, vocabulary, hmm_dir="/usr/local/share/" +
-                 "pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"):
+                                           "pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"):
 
         """
         Initiates the pocketsphinx instance.
@@ -121,17 +121,18 @@ class PocketSphinxSTT(AbstractSTTEngine):
                                  "make sure that you have set the correct " +
                                  "hmm_dir in your profile.",
                                  hmm_dir, ', '.join(missing_hmm_files))
-            
+
         config = ps.Decoder.default_config()
         config.set_string('-hmm', hmm_dir)
         config.set_string('-logfn', self._logfile)
-        
+
         for key, value in vocabulary.decoder_kwargs.iteritems():
-            self._logger.debug("key=%s, value=%s", key, value)
-        
+            configKey = '-%s' % key
+            config.set_string(configKey, value)
+
         self._decoder = ps.Decoder(config)
         #self._decoder = ps.Decoder(hmm=hmm_dir, logfn=self._logfile,
-        #                          **vocabulary.decoder_kwargs)
+         #                          **vocabulary.decoder_kwargs)
 
     def __del__(self):
         os.remove(self._logfile)
@@ -171,13 +172,13 @@ class PocketSphinxSTT(AbstractSTTEngine):
         self._decoder.process_raw(data, False, True)
         self._decoder.end_utt()
 
-        result = self._decoder.get_hyp()
+        result = self._decoder.hyp()
         with open(self._logfile, 'r+') as f:
             for line in f:
                 self._logger.debug(line.strip())
             f.truncate()
 
-        transcribed = [result[0]]
+        transcribed = result.hypstr
         self._logger.info('Transcribed: %r', transcribed)
         return transcribed
 
@@ -195,8 +196,9 @@ class JuliusSTT(AbstractSTTEngine):
     VOCABULARY_TYPE = vocabcompiler.JuliusVocabulary
 
     def __init__(self, vocabulary=None, hmmdefs="/usr/share/voxforge/julius/" +
-                 "acoustic_model_files/hmmdefs", tiedlist="/usr/share/" +
-                 "voxforge/julius/acoustic_model_files/tiedlist"):
+                                                "acoustic_model_files/hmmdefs",
+                 tiedlist="/usr/share/" +
+                          "voxforge/julius/acoustic_model_files/tiedlist"):
         self._logger = logging.getLogger(__name__)
         self._vocabulary = vocabulary
         self._hmmdefs = hmmdefs
@@ -642,7 +644,8 @@ def get_engine_by_slug(slug=None):
         raise TypeError("Invalid slug '%s'", slug)
 
     selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and
-                              engine.SLUG == slug, get_engines())
+                                             engine.SLUG == slug,
+                              get_engines())
     if len(selected_engines) == 0:
         raise ValueError("No STT engine found for slug '%s'" % slug)
     else:
@@ -664,6 +667,7 @@ def get_engines():
             subclasses.add(subclass)
             subclasses.update(get_subclasses(subclass))
         return subclasses
+
     return [tts_engine for tts_engine in
             list(get_subclasses(AbstractSTTEngine))
             if hasattr(tts_engine, 'SLUG') and tts_engine.SLUG]
