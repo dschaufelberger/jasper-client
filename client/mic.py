@@ -9,7 +9,10 @@ import audioop
 import pyaudio
 import alteration
 import jasperpath
-
+import time
+import datetime
+import shutil
+import os
 
 class Mic:
 
@@ -245,7 +248,20 @@ class Mic:
         stream.stop_stream()
         stream.close()
 
-        with tempfile.SpooledTemporaryFile(mode='w+b') as f:
+        #with tempfile.SpooledTemporaryFile(mode='w+b') as f:
+        #    wav_fp = wave.open(f, 'wb')
+        #    wav_fp.setnchannels(1)
+        #    wav_fp.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
+        #    wav_fp.setframerate(RATE)
+        #    wav_fp.writeframes(''.join(frames))
+        #    wav_fp.close()
+        #    f.seek(0)
+
+            # TODO according to the method comment this should return
+            # "Returns the first matching string or None"
+        #    return self.active_stt_engine.transcribe(f).split()
+
+        with tempfile.NamedTemporaryFile(mode='w+b') as f:
             wav_fp = wave.open(f, 'wb')
             wav_fp.setnchannels(1)
             wav_fp.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
@@ -253,9 +269,10 @@ class Mic:
             wav_fp.writeframes(''.join(frames))
             wav_fp.close()
             f.seek(0)
-
-            # TODO according to the method comment this should return
-            # "Returns the first matching string or None"
+            # gettime() function will replace temp file name with a timestamp
+            path = os.path.join('/home/pi/jasper/recordings', (self.gettime() + '.wav'))
+            # this will paste recorded file into your recordings folder
+            shutil.copyfile(f.name, path)
             return self.active_stt_engine.transcribe(f).split()
 
     def say(self, phrase,
@@ -263,3 +280,8 @@ class Mic:
         # alter phrase before speaking
         phrase = alteration.clean(phrase)
         self.speaker.say(phrase)
+
+    def gettime(self):
+        current = time.time()
+        tformat = datetime.datetime.fromtimestamp(current).strftime('%d:%H:%M:%S')
+        return tformat	
