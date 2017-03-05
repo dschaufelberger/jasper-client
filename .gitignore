@@ -67,3 +67,4 @@ target/
 .sublimelinterrc
 /.idea/
 /venv/
+/recordings/*.wav

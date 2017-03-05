@@ -283,5 +283,5 @@ class Mic:
 
     def gettime(self):
         current = time.time()
-        tformat = datetime.datetime.fromtimestamp(current).strftime('%d:%H:%M:%S')
+        tformat = datetime.datetime.fromtimestamp(current).strftime('%d_%H_%M_%S')
         return tformat	
