@@ -248,19 +248,6 @@ class Mic:
         stream.stop_stream()
         stream.close()
 
-        #with tempfile.SpooledTemporaryFile(mode='w+b') as f:
-        #    wav_fp = wave.open(f, 'wb')
-        #    wav_fp.setnchannels(1)
-        #    wav_fp.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
-        #    wav_fp.setframerate(RATE)
-        #    wav_fp.writeframes(''.join(frames))
-        #    wav_fp.close()
-        #    f.seek(0)
-
-            # TODO according to the method comment this should return
-            # "Returns the first matching string or None"
-        #    return self.active_stt_engine.transcribe(f).split()
-
         with tempfile.NamedTemporaryFile(mode='w+b') as f:
             wav_fp = wave.open(f, 'wb')
             wav_fp.setnchannels(1)
@@ -269,10 +256,9 @@ class Mic:
             wav_fp.writeframes(''.join(frames))
             wav_fp.close()
             f.seek(0)
-            # gettime() function will replace temp file name with a timestamp
-            path = os.path.join('/home/pi/jasper/recordings', (self.gettime() + '.wav'))
+            recording_file = os.path.join("home", "pi", "jasper", "recordings", (self.gettime() + '.wav'))
             # this will paste recorded file into your recordings folder
-            shutil.copyfile(f.name, path)
+            shutil.copyfile(f.name, recording_file)
             return self.active_stt_engine.transcribe(f).split()
 
     def say(self, phrase,
@@ -283,5 +269,5 @@ class Mic:
 
     def gettime(self):
         current = time.time()
-        tformat = datetime.datetime.fromtimestamp(current).strftime('%d_%H_%M_%S')
+        tformat = datetime.datetime.fromtimestamp(current).strftime('%d_%m_%H_%M_%S')
         return tformat	
