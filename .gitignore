@@ -68,3 +68,4 @@ target/
 /.idea/
 /venv/
 /recordings/*.wav
+/recordings/speakerIdentifierFiles/*.wav
