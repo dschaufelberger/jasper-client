@@ -256,7 +256,8 @@ class Mic:
             wav_fp.writeframes(''.join(frames))
             wav_fp.close()
             f.seek(0)
-            recording_file = os.path.join('/home/pi/jasper/recordings/speakerIdentifierFiles/', (self.gettime() + '.wav'))
+            recording_file = os.path.join('/home/pi/jarpis/jarpis/recognition/recordings/speakerIdentifierFiles/',
+                                          (self.gettime() + '.wav'))
             # this will paste recorded file into your recordings folder
             shutil.copyfile(f.name, recording_file)
             return self.active_stt_engine.transcribe(f).split()
